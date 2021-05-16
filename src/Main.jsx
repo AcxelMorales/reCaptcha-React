@@ -2,22 +2,50 @@ import React, { useRef, useState } from 'react';
 
 import ReCAPTCHA from 'react-google-recaptcha';
 
+import { Error } from './components/Error';
 import { Welcome } from './components/Welcome';
 
 export const Main = () => {
   const [state, setState] = useState({
     disabled: true,
-    change: false
+    change: false,
+    email: '',
+    firstPassword: '',
+    confirmPassword: '',
+    error: false,
+    errorMessage: ''
   });
+
+  const { disabled, change, email, firstPassword, confirmPassword, error, errorMessage } = state;
 
   const captcha = useRef(null);
 
   const handleOnSubmit = (evt) => {
     evt.preventDefault();
 
+    if (email.trim() === '' && firstPassword === '' && confirmPassword === '') {
+      setState({
+        ...state,
+        error: true,
+        errorMessage: 'Todos los campos son requeridos'
+      });
+
+      return;
+    }
+
+    if (firstPassword !== confirmPassword) {
+      setState({
+        ...state,
+        error: true,
+        errorMessage: 'Las contraseñas deben de ser iguales'
+      });
+
+      return;
+    }
+
     setState({
       ...state,
-      change: true
+      change: true,
     });
   };
 
@@ -25,14 +53,21 @@ export const Main = () => {
     if (captcha.current.getValue()) {
       setState({
         ...state,
-        disabled: false
+        disabled: false,
       });
     }
   };
 
+  const handleInputChange = ({ target }) => {
+    setState({
+      ...state,
+      [target.name]: target.value,
+    });
+  };
+
   return (
     <div className="container mt-5">
-      {!state.change && (
+      {!change && (
         <form className="w-50 m-auto" onSubmit={handleOnSubmit}>
           <h1 className="mb-4 text-muted">Registrate</h1>
 
@@ -47,6 +82,8 @@ export const Main = () => {
               name="email"
               aria-describedby="emailHelp"
               autoComplete="off"
+              onChange={handleInputChange}
+              value={email}
             />
           </div>
 
@@ -60,6 +97,8 @@ export const Main = () => {
               id="firstPassword"
               name="firstPassword"
               autoComplete="off"
+              onChange={handleInputChange}
+              value={firstPassword}
             />
           </div>
 
@@ -73,6 +112,8 @@ export const Main = () => {
               id="confirmPassword"
               name="confirmPassword"
               autoComplete="off"
+              onChange={handleInputChange}
+              value={confirmPassword}
             />
           </div>
 
@@ -84,9 +125,11 @@ export const Main = () => {
             />
           </div>
 
+          {error && <Error message={errorMessage} />}
+
           <div className="d-grid gap-2">
             <button
-              disabled={state.disabled}
+              disabled={disabled}
               className="btn btn-primary"
               type="submit"
             >
@@ -96,7 +139,7 @@ export const Main = () => {
         </form>
       )}
 
-      {state.change && <Welcome />}
+      {change && <Welcome />}
     </div>
   );
 };
