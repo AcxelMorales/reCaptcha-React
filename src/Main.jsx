@@ -120,7 +120,7 @@ export const Main = () => {
           <div className="mb-3 d-flex justify-content-center align-items-center">
             <ReCAPTCHA
               ref={captcha}
-              sitekey="6LcezdYaAAAAAObRM0a1tm3qW-ozFUwKoLnGsiIG"
+              sitekey={process.env.REACT_APP_KEY_RECAPTCHA}
               onChange={handleOnChangeReCaptcha}
             />
           </div>
